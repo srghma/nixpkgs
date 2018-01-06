@@ -19667,6 +19667,10 @@ with pkgs;
 
   pgadmin = callPackage ../applications/misc/pgadmin { };
 
+  pgadmin4 = callPackage ../applications/misc/pgadmin4 {
+    pythonPackages = python3Packages;
+  };
+
   pgf = pgf2;
 
   # Keep the old PGF since some documents don't render properly with
