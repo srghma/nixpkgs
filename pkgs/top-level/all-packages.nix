@@ -2428,6 +2428,8 @@ with pkgs;
 
   google-compute-engine = python2.pkgs.google-compute-engine;
 
+  google-web-designer = callPackage ../applications/graphics/google-web-designer { };
+
   gource = callPackage ../applications/version-management/gource { };
 
   gpart = callPackage ../tools/filesystems/gpart { };
