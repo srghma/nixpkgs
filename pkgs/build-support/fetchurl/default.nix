@@ -20,7 +20,7 @@ let
   # "gnu", etc.).
   sites = builtins.attrNames mirrors;
 
-  impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [
+  fetcherImpureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [
     # This variable allows the user to pass additional options to curl
     "NIX_CURL_FLAGS"
 
@@ -59,8 +59,13 @@ in
 
 , recursiveHash ? false
 
-, # Shell code to build a netrc file for BASIC auth
+, # Shell code to build a netrc file for BASIC auth, added as postHook
   netrcPhase ? null
+
+, # postHook that run after netrcPhace
+  postHook ? ""
+
+, impureEnvVars ? []
 
 , # Impure env vars (http://nixos.org/nix/manual/#sec-advanced-attributes)
   # needed for netrcPhase
@@ -131,7 +136,7 @@ stdenvNoCC.mkDerivation {
 
   inherit curlOpts showURLs mirrorsFile postFetch downloadToTemp executable;
 
-  impureEnvVars = impureEnvVars ++ netrcImpureEnvVars;
+  impureEnvVars = impureEnvVars ++ fetcherImpureEnvVars ++ netrcImpureEnvVars;
 
   nixpkgsVersion = lib.trivial.release;
 
@@ -139,10 +144,13 @@ stdenvNoCC.mkDerivation {
   # traffic, so don't do that.
   preferLocalBuild = true;
 
-  postHook = if netrcPhase == null then null else ''
-    ${netrcPhase}
-    curlOpts="$curlOpts --netrc-file $PWD/netrc"
-  '';
+  postHook =
+    let
+      netrcPhase_ = if netrcPhase == null then "" else ''
+        ${netrcPhase}
+        curlOpts="$curlOpts --netrc-file $PWD/netrc"
+      '';
+    in netrcPhase_ + postHook;
 
   inherit meta;
   inherit passthru;

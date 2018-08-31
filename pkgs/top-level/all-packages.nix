@@ -285,12 +285,36 @@ with pkgs;
   # gitlab example
   fetchFromGitLab = {
     owner, repo, rev, domain ? "gitlab.com", name ? "source",
+    privateTokenImpureEnvVariable ? null,
     ... # For hash agility
-  }@args: fetchzip ({
-    inherit name;
-    url = "https://${domain}/api/v4/projects/${owner}%2F${repo}/repository/archive.tar.gz?sha=${rev}";
-    meta.homepage = "https://${domain}/${owner}/${repo}/";
-  } // removeAttrs args [ "domain" "owner" "repo" "rev" ]) // { inherit rev; };
+  }@args:
+  let
+    privateAttrs = lib.optionalAttrs (privateTokenImpureEnvVariable != null) {
+      impureEnvVars = [privateTokenImpureEnvVariable];
+      postHook = ''
+        env
+        echo "''$${privateTokenImpureEnvVariable}"
+
+        if [ -z "''$${privateTokenImpureEnvVariable}" ]; then
+          echo "Error: Private fetchFromGitLab requires the nix building process (nix-daemon in multi user mode) to have the ${privateTokenImpureEnvVariable} env var set." >&2
+          exit 1
+        fi
+
+
+        curlOpts="$curlOpts --header 'Private-Token: ''$${privateTokenImpureEnvVariable}'"
+        echo $curlOpts
+      '';
+    };
+  in
+    fetchzip (
+      {
+        inherit name;
+        url = "https://${domain}/api/v4/projects/${owner}%2F${repo}/repository/archive.tar.gz?sha=${rev}";
+        meta.homepage = "https://${domain}/${owner}/${repo}/";
+      }
+      // removeAttrs args [ "domain" "owner" "repo" "rev" "privateTokenImpureEnvVariable" ]
+      // privateAttrs
+    ) // { inherit rev; };
 
   # gitweb example, snapshot support is optional in gitweb
   fetchFromRepoOrCz = {
