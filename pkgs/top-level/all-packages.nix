@@ -8,6 +8,7 @@
 { lib, noSysDirs, config, overlays }:
 res: pkgs: super:
 
+# MYTODO: where from?
 with pkgs;
 
 {
@@ -6600,6 +6601,7 @@ with pkgs;
 
   ised = callPackage ../tools/misc/ised {};
 
+  # set transf, optimization of cycles?
   isl = isl_0_20;
   isl_0_11 = callPackage ../development/libraries/isl/0.11.1.nix { };
   isl_0_14 = callPackage ../development/libraries/isl/0.14.1.nix { };
@@ -11901,6 +11903,10 @@ with pkgs;
     isl = if !stdenv.isDarwin then isl_0_20 else null;
   }));
 
+  # override
+  # callPackage
+  # wrapCC
+  # lowPrio
   gcc10 = lowPrio (wrapCC (callPackage ../development/compilers/gcc/10 {
     inherit noSysDirs;
 
