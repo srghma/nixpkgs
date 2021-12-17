@@ -47,6 +47,14 @@ let # Rename the function arguments
   crossSystem0 = crossSystem;
 
 in let
+  #     nix-repl> obj = makeExtensible (self: { })
+  #     { __unfix__ = «lambda»; extend = «lambda»; }
+  #     nix-repl> obj = obj.extend (self: super: { foo = "foo"; })
+  #
+  #
+  #     f = self: { foo = "foo"; bar = "bar"; foobar = self.foo + self.bar; }
+  #     g = self: super: { foo = super.foo + " + "; }
+  # extends g f = self: { foo = "foo + "; bar = "bar"; foobar = self.foo + self.bar; }
   lib = import ../../lib;
 
   localSystem = lib.systems.elaborate args.localSystem;

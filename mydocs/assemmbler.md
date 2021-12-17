@@ -3,19 +3,22 @@
 https://github.com/gcc-mirror/gcc/blob/16e2427f50c208dfe07d07f18009969502c25dc8/gcc/config/v850/v850-c.c#L156
 
 ```
-if      (streq (sect, "data"))    kind = GHS_SECTION_KIND_DATA;
-else if (streq (sect, "text"))    kind = GHS_SECTION_KIND_TEXT;
-else if (streq (sect, "rodata"))  kind = GHS_SECTION_KIND_RODATA;
-else if (streq (sect, "const"))   kind = GHS_SECTION_KIND_RODATA;
-else if (streq (sect, "rosdata")) kind = GHS_SECTION_KIND_ROSDATA;
-else if (streq (sect, "rozdata")) kind = GHS_SECTION_KIND_ROZDATA;
-else if (streq (sect, "sdata"))   kind = GHS_SECTION_KIND_SDATA;
-else if (streq (sect, "tdata"))   kind = GHS_SECTION_KIND_TDATA;
-else if (streq (sect, "zdata"))   kind = GHS_SECTION_KIND_ZDATA;
-/* According to GHS beta documentation, the following should not be
-allowed!  */
-else if (streq (sect, "bss"))     kind = GHS_SECTION_KIND_BSS;
-else if (streq (sect, "zbss"))    kind = GHS_SECTION_KIND_ZDATA;
+enum GHS_section_kind
+{
+  GHS_SECTION_KIND_DEFAULT,
+
+  GHS_SECTION_KIND_TEXT,
+  GHS_SECTION_KIND_DATA,
+  GHS_SECTION_KIND_RODATA,
+  GHS_SECTION_KIND_BSS,
+  GHS_SECTION_KIND_SDATA,
+  GHS_SECTION_KIND_ROSDATA,
+  GHS_SECTION_KIND_TDATA,
+  GHS_SECTION_KIND_ZDATA,
+  GHS_SECTION_KIND_ROZDATA,
+
+  COUNT_OF_GHS_SECTION_KINDS  /* must be last */
+};
 ```
 
 # flakes
@@ -44,8 +47,20 @@ else if (streq (sect, "zbss"))    kind = GHS_SECTION_KIND_ZDATA;
 f = import ./flake.nix
 o = (let o = f.outputs; in f.outputs { self = o; })
 ```
-#
+
+#  https://tldp.org/HOWTO/pdf/Program-Library-HOWTO.pdf
+
+a - static library (archive, `ar rcs my_library.a file1.o file2.o` (r -replace, c, s archive index))
+
+
+```
+https://www.google.com/search?q=static+library+vs+dll+vs+so+vs
+Static libraries (.a files): At link time, a copy of the entire library is put into the final application so that the functions within the library are always available to the calling application
+Shared objects (.so files): At link time, the object is just verified against its API via the corresponding header (.h) file. The library isn't actually used until runtime, where it is needed.
+```
+
+# default.nix
 
 ./default.nix
 ./pkgs/top-level/impure.nix # envs, currentSystem
-./pkgs/top-level/default.nix 
+./pkgs/top-level/default.nix

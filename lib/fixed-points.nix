@@ -66,7 +66,12 @@ rec {
   #             = self: { foo = "foo"; bar = "bar"; foobar = self.foo + self.bar; } // { foo = "foo" + " + "; }
   #             = self: { foo = "foo + "; bar = "bar"; foobar = self.foo + self.bar; }
   #
-  extends = f: rattrs: self: let super = rattrs self; in super // f self super;
+
+  #     mkSuper = self: { foo = "foo"; bar = "bar"; foobar = self.foo + self.bar; }
+  #     mkExtender = self: super: { foo = super.foo + " + "; }
+  # extends mkExtender mkSuper = self: { foo = "foo + "; bar = "bar"; foobar = self.foo + self.bar; }
+
+  extends = mkExtender: mkSuper: self: let super = mkSuper self; in super // mkExtender self super;
 
   # Compose two extending functions of the type expected by 'extends'
   # into one where changes made in the first are available in the
@@ -106,8 +111,8 @@ rec {
 
   # Same as `makeExtensible` but the name of the extending attribute is
   # customized.
-  makeExtensibleWithCustomName = extenderName: rattrs:
-    fix' rattrs // {
-      ${extenderName} = f: makeExtensibleWithCustomName extenderName (extends f rattrs);
+  makeExtensibleWithCustomName = extenderName: mkSuper:
+    fix' mkSuper // {
+      ${extenderName} = mkExtender: makeExtensibleWithCustomName extenderName (extends mkExtender mkSuper);
    };
 }
