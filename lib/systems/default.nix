@@ -29,6 +29,14 @@ rec {
       isCompatible = platform: parse.isCompatible final.parsed.cpu platform.parsed.cpu;
       # Derived meta-data
       libc =
+        # https://github.com/bminor/glibc
+        # https://gitlab.redox-os.org/redox-os/relibc/-/blob/master/src/sync/mutex.rs
+        # https://android.googlesource.com/platform/bionic.git/+/refs/heads/master/libc/include/elf.h
+        # https://github.com/gentoobionic/bionic/blob/master-local/Makefile.am
+
+        # nix-env -qaP 'gcc'
+        # nix-locate 'bin/gcc'
+
         /**/ if final.isDarwin              then "libSystem"
         else if final.isMinGW               then "msvcrt"
         else if final.isWasi                then "wasilibc"
@@ -49,17 +57,50 @@ rec {
       # independently, so we are just doing `linker` and keeping `useLLVM` for
       # now.
       linker =
+        # nix-repl> if null then "a" else "b"
+        # error: value is null while a Boolean was expected
+
         /**/ if final.useLLVM or false      then "lld"
         else if final.isDarwin              then "cctools"
+
         # "bfd" and "gold" both come from GNU binutils. The existance of Gold
         # is why we use the more obscure "bfd" and not "binutils" for this
         # choice.
+
+        # gold (linker) - ELF only
+        # bfd (Binary File Descriptor library)
+
+        # GNU Assembler (GAS), GNU Linker (GLD), GNU Binary Utilities ("binutils") tools
+
+        #################
+
+        # https://llvm.org/devmtg/2017-10/slides/Ueyama-lld.pdf
+
+        # lld supports ELF (Unix), COFF (Windows) and Mach-O (macOS)
+
+        # lld is /usr/bin/ld in FreeBSD
+
+        # How to use lld
+        # ● Replace /usr/bin/ld with lld, or
+        # ● Pass -fuse-ld=lld to clang
+
+        # GNU binutils have two linkers, bfd and gold
+        # ● bfd linker got ELF support in 1993
+        # ● gold started in 2006 as a ELF-only, faster replacement for bfd
+
+        # gold supports more targets than lld (s390, nacl, etc.)
+
+        # HOW TO USE
+        # ld object.o archive.a
+        # !!! could result in a different
+        symbol resolution result, if two or more archives provide the same symbols.
+
         else                                     "bfd";
       extensions = {
         sharedLibrary =
-          /**/ if final.isDarwin  then ".dylib"
+          /**/ if final.isDarwin  then ".dylib" # dynamic lib
           else if final.isWindows then ".dll"
-          else                         ".so";
+          else                         ".so"; # shared object
         executable =
           /**/ if final.isWindows then ".exe"
           else                         "";
@@ -67,6 +108,22 @@ rec {
       # Misc boolean options
       useAndroidPrebuilt = false;
       useiOSPrebuilt = false;
+
+      ### # RUST asm
+      # x86 and x86-64
+      # ARM
+      # AArch64
+      # RISC-V
+      # NVPTX
+      # PowerPC
+      # Hexagon
+      # MIPS32r2 and MIPS64r2
+      # wasm32
+      # BPF
+      # SPIR-V
+
+      # assembler type - LLVM IR (low-level intermediate representation)
+      # https://godbolt.org/
 
       # Output from uname
       uname = {
@@ -78,7 +135,7 @@ rec {
           netbsd = "NetBSD";
           freebsd = "FreeBSD";
           openbsd = "OpenBSD";
-          wasi = "Wasi";
+          wasi = "Wasi"; # system interface
           redox = "Redox";
           genode = "Genode";
         }.${final.parsed.kernel.name} or null;
