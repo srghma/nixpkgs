@@ -30049,6 +30049,10 @@ with pkgs;
 
   premid = callPackage ../applications/misc/premid { };
 
+  openbcigui = callPackage ../applications/misc/openbcigui {
+    jdk = oraclejdk8;
+  };
+
   processing = callPackage ../applications/graphics/processing {
     jdk = oraclejdk8;
   };
