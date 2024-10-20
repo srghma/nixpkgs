@@ -12,8 +12,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "JuliaStrings";
     repo = pname;
-    rev = "v${version}";
-    sha256 = "sha256-Sgh8vTbclUV+lFZdR29PtNUy8F+9L/OAXk647B+l2mg=";
+    rev = "3de4596fbe28956855df2ecb3c11c0bbc3535838";
+    sha256 = "sha256-DNnrKLwks3hP83K56Yjh9P3cVbivzssblKIx4M/RKqw=";
   };
 
   nativeBuildInputs = [ cmake ];

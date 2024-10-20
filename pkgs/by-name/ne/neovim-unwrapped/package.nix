@@ -9,6 +9,7 @@
 , CoreServices
 , fixDarwinDylibNames
 , glibcLocales ? null, procps ? null
+, utf8proc
 
 # now defaults to false because some tests can be flaky (clipboard etc), see
 # also: https://github.com/neovim/neovim/issues/16233
@@ -66,15 +67,17 @@ stdenv.mkDerivation (finalAttrs:
 
 in {
     pname = "neovim-unwrapped";
-    version = "0.10.2";
+    version = "nightly";
 
     __structuredAttrs = true;
 
     src = fetchFromGitHub {
       owner = "neovim";
       repo = "neovim";
-      rev = "refs/tags/v${finalAttrs.version}";
-      hash = "sha256-+qjjelYMB3MyjaESfCaGoeBURUzSVh/50uxUqStxIfY=";
+      # rev = "refs/tags/v${finalAttrs.version}";
+      rev = "refs/tags/nightly";
+      # rev = "ed794c9a10264540448a2698baa43c71f764def8";
+      hash = "sha256-qb7ONchRkgObq80IAjfU7h9cUcI3NIZj1qYlVVvAXpc=";
     };
 
     patches = [
@@ -104,6 +107,7 @@ in {
       neovimLuaEnv
       tree-sitter
       unibilium
+      utf8proc
     ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ libiconv CoreServices ]
       ++ lib.optionals finalAttrs.finalPackage.doCheck [ glibcLocales procps ]
     ;
