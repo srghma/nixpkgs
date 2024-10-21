@@ -77,7 +77,7 @@ in {
       # rev = "refs/tags/v${finalAttrs.version}";
       rev = "refs/tags/nightly";
       # rev = "ed794c9a10264540448a2698baa43c71f764def8";
-      hash = "sha256-qb7ONchRkgObq80IAjfU7h9cUcI3NIZj1qYlVVvAXpc=";
+      hash = "sha256-qbJIuuPPx84C0M1PC3k5PS/APjv6lrsfB/Q/rbMNMnI=";
     };
 
     patches = [
